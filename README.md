@@ -24,9 +24,8 @@
 
 ### github获取app并录入一个遥控器  
 * 获取APP
-* 账户注册、登陆
+* 账户登陆
 * Linksprite设备管理
-* Linksprite设备添加
 * 遥控器管理
 * 遥控器录入、使用
 
