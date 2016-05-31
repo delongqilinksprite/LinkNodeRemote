@@ -1,7 +1,7 @@
 ### 准备材料
 * LinkNode D1 x 1   
 * Infrared Shield x 1  
-* 带遥控器的设备 x 1  
+* 带遥控器的设备 x 1
 
 ### 注册登录[LinkSprite.io](www.linksprite.com)
 网页进入www.linksprite.io注册一个账号，并登录，在自己的账号下面建一个DIY设备，设备类型为00(Custom device type),设备分组为Remote，设备名可以自己DIY。   
@@ -31,17 +31,17 @@
 * 遥控器管理
 * 遥控器录入、使用
 
-1. 下载地址
-安卓端下载，在github上获取[remotecontrol.apk](www.linksprite.com)安装包
+1. 下载地址  
+安卓端下载，在github上获取[remotecontrol.apk](www.linksprite.com)安装包  
 
 2. 下载安卓后打开软件登陆账户，未注册用户，需先注册方能登陆使用，如图所示：  
-![用户登陆](picture/5.png)
+![用户登陆](picture/5.png)  
 
 3. 登陆成功后,进入Linksprite设备列表，可进行Linksprite设备的注册  
-![Linksprite设备列表](picture/6.png)
+![Linksprite设备列表](picture/6.png)  
 
 4. 点击右上角添加按钮，可对Linksprite设备二维码进行扫描，扫描成功后，添加备注名称，进行注册  
- ![Linksprite设备二维码扫描注册](picture/7.png)
+ ![Linksprite设备二维码扫描注册](picture/7.png)  
 
 5. 点击已经注册的Linksprite设备，显示遥控器列表，可添加多个遥控器，长按遥控器列表，可对遥控器的备注进行修改，保存在本地  
 ![Linksprite设备遥控器管理](picture/8.png)
