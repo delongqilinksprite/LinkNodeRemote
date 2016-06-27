@@ -1,3 +1,4 @@
+#include "FS.h"
 #include <IRremoteESP8266.h>
 #include <ESP8266WiFi.h>
 #include <WiFiManager.h>
@@ -13,10 +14,12 @@ decode_results results;
 IRsend irsend(5);
 
 /***************************************IoT********************************************/ 
-String deviceID="000000003f";
-String apikey="89d20a92-6ecd-4f0a-a147-d785d0273ca5";
+String deviceID;
+String FactoryKey;
+String apikey;
 WiFiClient client;
 const char* server = "www.linksprite.io";
+bool config_flag = true;
 
 /**************************This is for send_val and get_val**************************/
 typedef struct
@@ -69,14 +72,60 @@ void update_status(String button,String val);
 Que query();
 int StrtoDec(String a);
 void add_button(Que val);
+int RegisterDevice();
+String data;
 
 /*************************************set up******************************************/ 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   irsend.begin();
   irrecv.enableIRIn(); // Start the receiver
-  config_wifi();
+  bool result = SPIFFS.begin();
+  Serial.println("SPIFFS opened: " + result);
+  File f = SPIFFS.open("/data.txt", "r");
+  if (!f) 
+  {
+    Serial.println("File doesn't exist yet. Creating it");
+    while(config_flag)
+    {   
+      Serial.println("Start to configure...");
+      if(Serial.available() > 0)
+      {
+          data = Serial.readStringUntil('\n');
+      }
+      if(data.lastIndexOf('-')!=-1)
+      {
+        config_flag = false;
+        Serial.println("Configuration is finished!");
+      }
+      delay(1000);
+    }
+    File f = SPIFFS.open("/data.txt", "w");
+    if (!f) 
+    {
+      Serial.println("file creation failed");
+    }
+    f.println(data);
+  } 
+  else 
+  {
+    while(f.available()) 
+    {
+      //Lets read line by line from the file
+      data = f.readStringUntil('\n');      
+    }
+  }  
+ deviceID = data.substring(0,10);
+ String va = data.substring(10);
+ FactoryKey = va.substring(0,36);
+ Serial.println("deviceID:");
+ Serial.println(deviceID);
+ Serial.println("FactoryKey:");
+ Serial.println(FactoryKey);
+ f.close();
+ while(RegisterDevice()!=0);
+config_wifi();
 }
 
 /***************************************loop********************************************/ 
@@ -579,4 +628,61 @@ void add_button(Que val)
           update_status("def4","0"); 
        }
    }
+}
+
+
+/***********************************RegisterDevice********************************************/
+int RegisterDevice()
+{
+    if (client.connect(server,80)) 
+   {  
+     String  postStr2 ="{";
+           postStr2 +="\"action\":\"register\",";
+           postStr2 +="\"deviceid\":\"";
+           postStr2 += deviceID;
+           postStr2 +="\",";
+           postStr2 +="\"apikey\":\"";
+           postStr2 += FactoryKey;
+           postStr2 +="\"}";
+    client.print("POST /api/http HTTP/1.1\n");
+    client.print("Host: ");
+    client.print(server);
+    client.print("\nContent-Type: application/json\n");
+    client.print("Content-Length: ");
+    client.print(postStr2.length());
+    client.print("\n\n");
+    client.print(postStr2);  
+    Serial.print(postStr2);
+  }
+ delay(200);
+ Serial.println("Store response...");
+ String request = "";
+ while (client.available()) 
+ {
+   char c = client.read();
+   request +=c;
+ } 
+ if (request!= NULL)
+ {
+   int index1 = request.indexOf(":{");
+   int index2 = request.indexOf("},");
+   String param = request.substring(index1, index2 + 1);
+   Serial.println(param);
+   int index3 = param.indexOf("apikey");
+   int index4 = param.indexOf("deviceid");
+   apikey = param.substring(index3+9, index3+45);
+   String id = param.substring(index4+11, index4 +21);
+   Serial.print("KEY:");
+   Serial.println(apikey);
+   Serial.print("ID:");
+   Serial.println(id);
+   client.stop();   
+   int len=param.length();
+   if(len>=250)
+   {
+    Serial.println("RegisterDevice OK!\n");
+    return 0;
+   }
+ } 
+ return -1;
 }
